@@ -1,6 +1,3 @@
-#Görev 1 : Keşifçi Veri Analizi
-#Adım 1: Genel resmi inceleyiniz.
-
 import numpy as np
 import pandas as pd
 import missingno as msno
@@ -10,7 +7,6 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 
 pd.set_option('display.max_columns', None)
-# pd.set_option('display.max_rows', None)
 pd.set_option('display.float_format', lambda x: '%.3f' % x)
 pd.set_option('display.width', 500)
 
@@ -29,8 +25,6 @@ df["TotalCharges"] = pd.to_numeric(df["TotalCharges"], errors="coerce") #numerik
 df.isnull()
 df.isnull().sum()
 
-
-#Adım 2: Numerik ve kategorik değişkenleri yakalayınız.
 
 def grab_col_names(dataframe, cat_th=10, car_th=20):
     # cat_cols, cat_but_car
@@ -58,7 +52,6 @@ grab_col_names(df)
 
 cat_cols, num_cols, cat_but_car = grab_col_names(df)
 
-##Adım 3: Numerik ve kategorik değişkenlerin analizini yapınız.
 
 #elimizde 3 numerik değişken var. ayrıca 17 tane kategorik değişken var.
 #customerID kardinal değişkenimiz.
@@ -66,16 +59,11 @@ cat_cols, num_cols, cat_but_car = grab_col_names(df)
 num_cols
 cat_cols
 
-##Adım 4: Hedef değişken analizi yapınız.(Kategorik değişkenlere göre
-# hedef değişkenin ortalaması, hedef değişkene göre numerik değişkenlerin ortalaması)
-
 for col in num_cols:
     print(pd.DataFrame(df.groupby("Churn")[col].mean()))
 
 #for col in cat_cols:
 #   print(pd.DataFrame(df.groupby(col)["Churn"].mean()))
-
-#Adım 5: Aykırı gözlem analizi yapınız.
 
 def outlier_thresholds(dataframe, col_name, q1=0.25, q3=0.75):
     quartile1 = dataframe[col_name].quantile(q1)
@@ -95,7 +83,6 @@ def check_outlier(dataframe, col_name):
 for col in num_cols:
     print(col, check_outlier(df, col))
     
-#Adım 6: Eksik gözlem analizi yapınız.
 
 def missing_values_table(dataframe, na_name=False):
     na_columns = [col for col in dataframe.columns if dataframe[col].isnull().sum() > 0]
@@ -110,8 +97,6 @@ def missing_values_table(dataframe, na_name=False):
 
 missing_values_table(df)
 
-#Adım 7: Korelasyon analizi yapınız.
-
 #df.corr().sort_values("Churn", ascending=False)
 
 msno.bar(df)
@@ -124,9 +109,6 @@ msno.heatmap(df)
 plt.show()
 
 corr_matrix = df.corr()
-
-#Görev 2 : Feature Engineering
-#Adım 1: Eksik ve aykırı değerler için gerekli işlemleri yapınız.
 
 def replace_with_thresholds(dataframe, variable):
     low_limit, up_limit = outlier_thresholds(dataframe, variable)
@@ -141,7 +123,6 @@ for col in num_cols:
 
 df.isnull().values.any()
 
-#Adım 2: Yeni değişkenler oluşturunuz.
 
 df["HAS_INTERNET_SERVICE"] = df["InternetService"].apply(lambda x: "0" if x == "No" else "1")
 
@@ -152,8 +133,6 @@ df["HAS_BOTH_SERVICES"].fillna("0", inplace=True)
 
 df['TOTALSERVICES'] = (df[['PhoneService', 'InternetService', 'OnlineSecurity', 'OnlineBackup', 'DeviceProtection',
                                'TechSupport', 'StreamingTV', 'StreamingMovies']] == 'Yes').sum(axis=1)
-
-#Adım 3: Encoding işlemlerini gerçekleştiriniz.
 
 # LABEL ENCODING
 def label_encoder(dataframe, binary_col):
@@ -174,11 +153,9 @@ ohe_cols = [col for col in df.columns if 10 >= df[col].nunique() > 2]
 one_hot_encoder(df, ohe_cols)
 one_hot_encoder(df, cat_cols)
 
-#Adım 4: Numerik değişkenler için standartlaştırma yapınız.
 scaler = StandardScaler()
 df[num_cols] = scaler.fit_transform(df[num_cols])
 
-#Adım 5: Model oluşturunuz
 
 
 y = df["Churn"]
